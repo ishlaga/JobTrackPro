@@ -1,35 +1,48 @@
 // src/components/FileUpload.jsx
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { ref, uploadBytes } from "firebase/storage";
-import { storage } from "../firebase";
-import pdfParse from "pdf-parse";
+import { storage } from "../firbase";
+import { PDFDocument } from "pdf-lib";
+import { rgb } from "pdf-lib";
 
 export default function FileUpload({ onResumeUpload, onJobDescUpload }) {
-  const onDrop = useCallback(async (acceptedFiles) => {
+  const [pdfData, setPdfData] = useState(null);
+
+  const onDrop = async (acceptedFiles) => {
     const file = acceptedFiles[0];
-    const storageRef = ref(storage, `uploads/${file.name}`);
-    await uploadBytes(storageRef, file);
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
 
-    // Extract text from PDF
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const pdf = await pdfParse(reader.result);
-      if (file.name.includes("resume")) {
-        onResumeUpload(pdf.text);
-      } else {
-        onJobDescUpload(pdf.text);
-      }
-    };
-    reader.readAsArrayBuffer(file);
-  }, []);
+    // Example: Modify the PDF (e.g., add a text)
+    const page = pdfDoc.getPages()[0]; // Get the first page
+    page.drawText('Tailored Content Here', {
+      x: 50,
+      y: 700,
+      size: 12,
+      color: rgb(0, 0, 0),
+    });
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+    // Save the modified PDF
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    setPdfData(url); // Set the modified PDF URL for preview
+  };
+
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
-    <div {...getRootProps()} className="dropzone">
+    <div {...getRootProps()} style={{ border: '2px dashed #cccccc', padding: '20px', textAlign: 'center' }}>
       <input {...getInputProps()} />
-      {isDragActive ? "Drop files here..." : "Drag & drop resume/job description"}
+      <p>Drag 'n' drop your resume PDF here, or click to select one</p>
+      {pdfData && (
+        <iframe
+          src={pdfData}
+          style={{ width: '100%', height: '500px', border: 'none' }}
+          title="PDF Preview"
+        />
+      )}
     </div>
   );
 }
