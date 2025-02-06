@@ -1,47 +1,87 @@
-// src/components/FileUpload.jsx
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { ref, uploadBytes } from "firebase/storage";
-import { storage } from "../firbase";
-import { PDFDocument } from "pdf-lib";
-import { rgb } from "pdf-lib";
+import { getAuth } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
-export default function FileUpload({ onResumeUpload, onJobDescUpload }) {
-  const [pdfData, setPdfData] = useState(null);
+export default function FileUpload({ onResumeUpload }) {
+  const [uploading, setUploading] = useState(false);
+  const [resumeUrl, setResumeUrl] = useState(null);
+  const auth = getAuth();
+  const storage = getStorage();
+  const db = getFirestore();
 
   const onDrop = async (acceptedFiles) => {
     const file = acceptedFiles[0];
-    const arrayBuffer = await file.arrayBuffer();
-    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    if (!file) return;
 
-    // Example: Modify the PDF (e.g., add a text)
-    const page = pdfDoc.getPages()[0]; // Get the first page
-    page.drawText('Tailored Content Here', {
-      x: 50,
-      y: 700,
-      size: 12,
-      color: rgb(0, 0, 0),
-    });
+    setUploading(true);
 
-    // Save the modified PDF
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    setPdfData(url); // Set the modified PDF URL for preview
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        console.error("🚨 User not logged in! Upload canceled.");
+        setUploading(false);
+        return;
+      }
+
+      console.log("✅ Uploading file for user:", user.uid);
+
+      // 🔥 Ensure Safe File Name (Removes spaces & special characters)
+      const safeFileName = file.name.replace(/\s+/g, "_").replace(/[()]/g, "");
+
+      // ✅ Correct Firebase Storage Reference (NO MANUAL URL CONSTRUCTION)
+      const storageRef = ref(storage, `resumes/${user.uid}/${safeFileName}`);
+
+      // ✅ Upload File to Firebase Storage
+      const snapshot = await uploadBytes(storageRef, file);
+      console.log("✅ File uploaded:", snapshot.metadata.fullPath);
+
+      // ✅ Get the Correct Download URL
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      console.log("✅ Download URL:", downloadURL);
+
+      // ✅ Store metadata in Firestore
+      await addDoc(collection(db, "resumes"), {
+        userId: user.uid,
+        fileName: safeFileName,
+        url: downloadURL,
+        uploadedAt: new Date(),
+      });
+
+      setResumeUrl(downloadURL);
+      onResumeUpload(downloadURL);
+    } catch (error) {
+      console.error("🚨 Upload failed:", error);
+    }
+
+    setUploading(false);
   };
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
-    <div {...getRootProps()} style={{ border: '2px dashed #cccccc', padding: '20px', textAlign: 'center' }}>
-      <input {...getInputProps()} />
-      <p>Drag 'n' drop your resume PDF here, or click to select one</p>
-      {pdfData && (
-        <iframe
-          src={pdfData}
-          style={{ width: '100%', height: '500px', border: 'none' }}
-          title="PDF Preview"
-        />
+    <div style={{ textAlign: "center", padding: "20px" }}>
+      <div
+        {...getRootProps()}
+        style={{
+          border: "2px dashed #ccc",
+          padding: "20px",
+          cursor: "pointer",
+          backgroundColor: uploading ? "#f8f9fa" : "white",
+        }}
+      >
+        <input {...getInputProps()} />
+        <p>{uploading ? "Uploading..." : "Drag & drop your resume (PDF) here, or click to select a file"}</p>
+      </div>
+
+      {resumeUrl && (
+        <p>
+          ✅ Resume uploaded:{" "}
+          <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
+            View Resume
+          </a>
+        </p>
       )}
     </div>
   );
