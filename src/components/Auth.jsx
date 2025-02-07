@@ -1,13 +1,39 @@
-// src/components/Auth.jsx
-import { useState } from "react";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, getAuth, fetchSignInMethodsForEmail } from "firebase/auth";
+import { useState, useEffect } from "react";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth";
 import { auth } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import './Auth.css';
 
 export default function Auth({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [text, setText] = useState("");
+  const [typingIndex, setTypingIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const phrase = "Edit your resume effortlessly!";
+  const typingSpeed = 100; // Speed of typing
+  const deleteSpeed = 50; // Speed of deleting
+  const pauseBeforeDelete = 2000; // Pause after typing before deleting
+
+  useEffect(() => {
+    if (isDeleting) {
+      // Deleting effect
+      if (typingIndex > 0) {
+        setTimeout(() => setTypingIndex(typingIndex - 1), deleteSpeed);
+      } else {
+        setIsDeleting(false);
+      }
+    } else {
+      // Typing effect
+      if (typingIndex < phrase.length) {
+        setTimeout(() => setTypingIndex(typingIndex + 1), typingSpeed);
+      } else {
+        setTimeout(() => setIsDeleting(true), pauseBeforeDelete); // Pause before deleting
+      }
+    }
+  }, [typingIndex, isDeleting]);
 
   const handleSignup = async () => {
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
@@ -20,7 +46,6 @@ export default function Auth({ onLoginSuccess }) {
     }
 
     try {
-      // Check if the email is already in use
       const signInMethods = await fetchSignInMethodsForEmail(auth, email);
       if (signInMethods.length > 0) {
         alert("This email is already in use. Please use a different email.");
@@ -39,7 +64,7 @@ export default function Auth({ onLoginSuccess }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       alert("Login successful!");
-      onLoginSuccess(); // Call the prop function to update authentication state
+      onLoginSuccess();
       navigate("/upload");
     } catch (error) {
       console.error(error);
@@ -49,10 +74,31 @@ export default function Auth({ onLoginSuccess }) {
 
   return (
     <div className="auth-container">
-      <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
-      <button onClick={handleSignup}>Sign Up</button>
-      <button onClick={handleLogin}>Login</button>
+      <h1 className="auth-title">JobTrackPro</h1>
+      <div className="typing-effect">{phrase.substring(0, typingIndex)}</div>
+
+      <div className="input-container">
+        <input 
+          type="email" 
+          placeholder="Email" 
+          onChange={(e) => setEmail(e.target.value)} 
+        />
+      </div>
+
+      <div className="input-container">
+        <input 
+          type="password" 
+          placeholder="Password" 
+          onChange={(e) => setPassword(e.target.value)} 
+        />
+      </div>
+
+      <div className="auth-buttons">
+        <button onClick={handleSignup}>Sign Up</button>
+        <button onClick={handleLogin}>Login</button>
+      </div>
+
+      <p className="footer-text">Already have an account? Login to continue.</p>
     </div>
   );
 }

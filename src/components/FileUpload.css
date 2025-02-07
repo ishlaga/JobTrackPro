@@ -1,0 +1,21 @@
+.file-upload-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.dropzone {
+  border: 2px dashed #ccc;
+  padding: 20px;
+  cursor: pointer;
+  background-color: white;
+  transition: background-color 0.3s;
+}
+
+.dropzone.uploading {
+  background-color: #f8f9fa;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}

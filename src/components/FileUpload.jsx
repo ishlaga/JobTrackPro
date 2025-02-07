@@ -3,19 +3,30 @@ import { useDropzone } from "react-dropzone";
 import { getAuth } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
+import './FileUpload.css'; // Import a CSS file for styling
 
 export default function FileUpload({ onResumeUpload }) {
   const [uploading, setUploading] = useState(false);
   const [resumeUrl, setResumeUrl] = useState(null);
+  const [error, setError] = useState(null); // State for error messages
   const auth = getAuth();
   const storage = getStorage();
   const db = getFirestore();
+
+  const MAX_FILE_SIZE = 500 * 1024; // 500 KB in bytes
 
   const onDrop = async (acceptedFiles) => {
     const file = acceptedFiles[0];
     if (!file) return;
 
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      setError("File size exceeds 500 KB. Please upload a smaller file.");
+      return;
+    }
+
     setUploading(true);
+    setError(null); // Reset error state
 
     try {
       const user = auth.currentUser;
@@ -61,26 +72,16 @@ export default function FileUpload({ onResumeUpload }) {
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
-    <div style={{ textAlign: "center", padding: "20px" }}>
-      <div
-        {...getRootProps()}
-        style={{
-          border: "2px dashed #ccc",
-          padding: "20px",
-          cursor: "pointer",
-          backgroundColor: uploading ? "#f8f9fa" : "white",
-        }}
-      >
+    <div className="file-upload-container">
+      <div {...getRootProps()} className={`dropzone ${uploading ? 'uploading' : ''}`}>
         <input {...getInputProps()} />
         <p>{uploading ? "Uploading..." : "Drag & drop your resume (PDF) here, or click to select a file"}</p>
       </div>
-
+      {error && <p className="error-message">{error}</p>}
       {resumeUrl && (
         <p>
           ✅ Resume uploaded:{" "}
-          <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
-            View Resume
-          </a>
+          <a href={resumeUrl} target="_blank" rel="noopener noreferrer">View Resume</a>
         </p>
       )}
     </div>

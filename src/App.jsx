@@ -27,10 +27,10 @@ function App() {
       </Routes>
       <Editor content={resumeContent} onUpdate={setResumeContent} />
       <div>
-        <a href="https://vite.dev" target="_blank">
+        <a href="https://vite.dev" target="_blank" aria-label="Vite documentation">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
-        <a href="https://react.dev" target="_blank">
+        <a href="https://react.dev" target="_blank" aria-label="React documentation">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
