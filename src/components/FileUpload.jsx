@@ -5,28 +5,44 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import './FileUpload.css'; // Import a CSS file for styling
 
+import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
+import pdfWorker from 'pdfjs-dist/build/pdf.worker?url';
+
 export default function FileUpload({ onResumeUpload }) {
   const [uploading, setUploading] = useState(false);
   const [resumeUrl, setResumeUrl] = useState(null);
   const [error, setError] = useState(null); // State for error messages
+  const [file, setFile] = useState(null); // State to hold the dropped file
   const auth = getAuth();
   const storage = getStorage();
   const db = getFirestore();
 
   const MAX_FILE_SIZE = 500 * 1024; // 500 KB in bytes
 
-  const onDrop = async (acceptedFiles) => {
-    const file = acceptedFiles[0];
-    if (!file) return;
+  // Set the workerSrc for pdfjs
+  GlobalWorkerOptions.workerSrc = pdfWorker;
+
+  const onDrop = (acceptedFiles) => {
+    const droppedFile = acceptedFiles[0];
+    if (!droppedFile) return;
 
     // Check file size
-    if (file.size > MAX_FILE_SIZE) {
+    if (droppedFile.size > MAX_FILE_SIZE) {
       setError("File size exceeds 500 KB. Please upload a smaller file.");
       return;
     }
 
-    setUploading(true);
+    setFile(droppedFile); // Store the dropped file
     setError(null); // Reset error state
+  };
+
+  const handleSave = async () => {
+    if (!file) {
+      setError("No file selected for upload.");
+      return;
+    }
+
+    setUploading(true);
 
     try {
       const user = auth.currentUser;
@@ -38,21 +54,19 @@ export default function FileUpload({ onResumeUpload }) {
 
       console.log("✅ Uploading file for user:", user.uid);
 
-      // 🔥 Ensure Safe File Name (Removes spaces & special characters)
+      // Ensure Safe File Name
       const safeFileName = file.name.replace(/\s+/g, "_").replace(/[()]/g, "");
-
-      // ✅ Correct Firebase Storage Reference (NO MANUAL URL CONSTRUCTION)
       const storageRef = ref(storage, `resumes/${user.uid}/${safeFileName}`);
 
-      // ✅ Upload File to Firebase Storage
+      // Upload File to Firebase Storage
       const snapshot = await uploadBytes(storageRef, file);
       console.log("✅ File uploaded:", snapshot.metadata.fullPath);
 
-      // ✅ Get the Correct Download URL
+      // Get the Correct Download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
       console.log("✅ Download URL:", downloadURL);
 
-      // ✅ Store metadata in Firestore
+      // Store metadata in Firestore
       await addDoc(collection(db, "resumes"), {
         userId: user.uid,
         fileName: safeFileName,
@@ -62,14 +76,74 @@ export default function FileUpload({ onResumeUpload }) {
 
       setResumeUrl(downloadURL);
       onResumeUpload(downloadURL);
+
+      // Extract text from the PDF and log it to the console
+      const text = await extractTextFromPdf(file);
+      console.log("Extracted Text:", text); // Log the extracted text to the console
+
     } catch (error) {
       console.error("🚨 Upload failed:", error);
+      setError("Upload failed: " + error.message);
     }
 
     setUploading(false);
   };
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile && selectedFile.type === 'application/pdf') {
+      setFile(selectedFile);
+      setError(null);
+    } else {
+      setError('Please upload a valid PDF file.');
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      setError('No file selected.');
+      return;
+    }
+
+    // Extract text from the PDF
+    const text = await extractTextFromPdf(file);
+    if (text) {
+      // Call the onResumeUpload function with the extracted text
+      onResumeUpload(text);
+    }
+
+    // Upload the file to Firebase Storage
+    const storageRef = ref(storage, `resumes/${file.name}`);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+    console.log('File available at', downloadURL);
+  };
+
+  const extractTextFromPdf = async (file) => {
+    const fileReader = new FileReader();
+    return new Promise((resolve, reject) => {
+      fileReader.onload = async () => {
+        const typedArray = new Uint8Array(fileReader.result);
+        const pdf = await getDocument(typedArray).promise;
+        let extractedText = '';
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const pageText = content.items.map(item => item.str).join(' ');
+          extractedText += pageText + '\n';
+        }
+
+        // Clean the extracted text
+        const cleanText = extractedText.replace(/\s+/g, ' ').trim();
+        resolve(cleanText);
+      };
+
+      fileReader.readAsArrayBuffer(file);
+    });
+  };
 
   return (
     <div className="file-upload-container">
@@ -84,6 +158,9 @@ export default function FileUpload({ onResumeUpload }) {
           <a href={resumeUrl} target="_blank" rel="noopener noreferrer">View Resume</a>
         </p>
       )}
+      <button onClick={handleSave} disabled={uploading || !file} className="save-button">
+        Save
+      </button>
     </div>
   );
 }
