@@ -4,6 +4,7 @@ import './App.css'
 import Auth from './components/Auth'
 import FileUpload from './components/FileUpload'
 import Editor from './components/Editor'
+import ClaudeResumeGenerator from './components/ClaudeResumeGenerator'
 
 function App() {
   const [resumeContent, setResumeContent] = useState('')
@@ -63,7 +64,12 @@ function App() {
                     <div className="right-panel">
                       <div className="panel-section editor-section">
                         <h2>Resume Editor</h2>
-                        
+                        {resumeContent && savedJobDescription && (
+                          <ClaudeResumeGenerator 
+                            extractedText={resumeContent}
+                            jobDescription={savedJobDescription}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>

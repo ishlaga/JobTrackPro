@@ -52,19 +52,15 @@ export default function FileUpload({ onResumeUpload }) {
         return;
       }
 
-      console.log("✅ Uploading file for user:", user.uid);
+      // Extract text from the PDF first
+      const extractedText = await extractTextFromPdf(file);
+      console.log("✅ Text extracted from PDF");
 
-      // Ensure Safe File Name
+      // Upload file to Firebase Storage (if you still want to store the file)
       const safeFileName = file.name.replace(/\s+/g, "_").replace(/[()]/g, "");
       const storageRef = ref(storage, `resumes/${user.uid}/${safeFileName}`);
-
-      // Upload File to Firebase Storage
       const snapshot = await uploadBytes(storageRef, file);
-      console.log("✅ File uploaded:", snapshot.metadata.fullPath);
-
-      // Get the Correct Download URL
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log("✅ Download URL:", downloadURL);
 
       // Store metadata in Firestore
       await addDoc(collection(db, "resumes"), {
@@ -75,11 +71,8 @@ export default function FileUpload({ onResumeUpload }) {
       });
 
       setResumeUrl(downloadURL);
-      onResumeUpload(downloadURL);
-
-      // Extract text from the PDF and log it to the console
-      const text = await extractTextFromPdf(file);
-      console.log("Extracted Text:", text); // Log the extracted text to the console
+      // Pass the extracted text to the parent component instead of the URL
+      onResumeUpload(extractedText);
 
     } catch (error) {
       console.error("🚨 Upload failed:", error);
