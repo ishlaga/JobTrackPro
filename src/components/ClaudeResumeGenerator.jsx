@@ -28,6 +28,7 @@ export default function ClaudeResumeGenerator({ extractedText, jobDescription })
     - DO NOT remove or significantly alter original projects and experiences
     - DO NOT generate a CV or add new sections
     - DO NOT remove works experience or projects mentioned in the request.
+    - name should be centered and highlighted in the resume.
     -  the outline should match Education, Experinces, Projects, Technical Skills, Achivements(optional, only if mentioned in the request)
     - DO NOT include explanations or comments
     - Ensure the LaTeX code compiles correctly into one page
