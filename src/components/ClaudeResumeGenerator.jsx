@@ -15,7 +15,7 @@ export default function ClaudeResumeGenerator({ extractedText, jobDescription })
     // Create request payload
     const requestPayload = {
         model: 'claude-3-opus-20240229',
-        max_tokens: 15000,
+        max_tokens: 5000,
         system: `
     You are a professional resume writer skilled in LaTeX. You MUST follow Jake Gutierrez's LaTeX resume template EXACTLY.
     
@@ -31,7 +31,7 @@ export default function ClaudeResumeGenerator({ extractedText, jobDescription })
     - name should be centered and highlighted in the resume.
     -  the outline should match Education, Experinces, Projects, Technical Skills, Achivements(optional, only if mentioned in the request)
     - DO NOT include explanations or comments
-    - Ensure the LaTeX code compiles correctly into one page
+    - Ensure the LaTeX code compiles correctly into one full page
     - Keep all content ATS-friendly and structured correctly
     - Maintain original dates and formatting consistency
     - Preserve all original LaTeX formatting commands and structure
@@ -52,7 +52,7 @@ export default function ClaudeResumeGenerator({ extractedText, jobDescription })
       - Update the resume to match the job description.
       - DO NOT generate a CV. 
       - DO NOT modify the format; keep it STRICTLY as per Jake Gutierrez's LaTeX resume.
-      - Ensure the final LaTeX is valid and compiles into a SINGLE PAGE.
+      - DO NOT remove works experience or projects mentioned in the request.
       
       Return ONLY LaTeX. NO explanations, NO comments, NO additional sections.
       `,
@@ -123,7 +123,7 @@ export default function ClaudeResumeGenerator({ extractedText, jobDescription })
             src={pdfUrl}
             style={{ width: '100%', height: '500px', border: 'none' }}
             title="PDF Resume"
-          ></iframe>
+          ></iframe> 
         </div>
       )}
     </div>
