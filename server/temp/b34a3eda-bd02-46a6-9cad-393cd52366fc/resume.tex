@@ -1,0 +1,101 @@
+\documentclass[letterpaper,11pt]{article}
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome}
+\usepackage{multicol}
+\usepackage{geometry}
+\geometry{left=0.4in,top=0.4in,right=0.4in,bottom=0.4in}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\name}[1]{\centerline{\Huge \scshape #1}\vspace{1.25ex}}
+\newcommand{\address}[1]{\centerline{#1}\vspace{-7pt}}
+\newcommand{\basicInfo}[1]{\centerline{\small#1}\vspace{-7pt}}
+
+\begin{document}
+Here is the LaTeX content for the tailored resume:
+
+\name{Eshanth Chinthareddy}
+\address{Ames, Iowa}
+\phone{612-461-6318}
+\email{chinthareddyeshanth@gmail.com}
+
+\section{\underline{Education}}
+\datedsubsection{\textbf{Iowa State University}}{Expected Graduation: Dec 2025}
+\locationsubsection{Bachelor of Science in Software Engineering}
+\item GPA: 3.28
+
+\section{\underline{Technical Skills}}
+\skillset{Languages: C++, Python, C, C\#, .NET, Java, JavaScript, TypeScript, Assembly, HTML, CSS}
+\skillset{Technologies: Embedded Development, Jetson, CStreamer, Git, REST APIs, MERN Stack, Docker, Kubernetes, AWS, GCP, Firebase}
+\skillset{Frameworks: Spring Boot, Flask, Django, Express.js, ASP.NET Core, React, TensorFlow, PyTorch}
+
+\section{\underline{Work Experience}}
+\datedsubsection{\textbf{Software Engineering Intern} | Thinix}{May 2024 – Present}
+\locationsubsection{Ames, IA}
+\item Developed performant RESTful APIs using ASP.NET Core and Entity Framework
+\item Optimized API response times by 40\% through eager/lazy loading and asynchronous processing
+\item Led major .NET framework upgrade from v6 to v8, enhancing scalability and efficiency
+
+\datedsubsection{\textbf{System Support Specialist} | Iowa State University}{May 2023 – May 2024} 
+\locationsubsection{Ames, IA}
+\item Provided frontline technical support, troubleshooting software and hardware issues
+\item Leveraged SCCM and JAMF for software deployment, device management, and inventory tracking
+\item Managed IT service tickets to ensure timely resolution of incidents and requests
+
+\section{\underline{Project Experience}}
+\datedsubsection{\textbf{JobTrackPro}}{Dec 2024 – Present}
+\item Developing AI-driven resume tailoring tool using Python, React, MongoDB and Claude API  
+\item Built intelligent job tracking platform to scrape LinkedIn/Indeed for actionable insights
+\item Designed intuitive interface for managing applications, deadlines and automated reminders
+
+\datedsubsection{\textbf{ShopEase}}{Feb 2024 – May 2024}
+\item Developed full-stack e-commerce platform using MERN stack (MongoDB, Express, React, Node)  
+\item Implemented responsive frontend with Redux for seamless state management and user experience
+\item Designed scalable RESTful APIs for product listings, authentication and order management
+
+\datedsubsection{\textbf{Multi-Service App}}{Sept 2023 – Dec 2023}
+\item Built service platform enabling users to list and request services like tutoring
+\item Integrated user authentication, real-time messaging and location services via Google Maps 
+\item Developed RESTful APIs with Spring Boot and managed MySQL data modeling configurations
+\end{document}

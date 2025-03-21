@@ -14,58 +14,74 @@ export default function ClaudeResumeGenerator({ extractedText, jobDescription })
 
     // Create request payload
     const requestPayload = {
-        model: 'claude-3-opus-20240229',
-        max_tokens: 5000,
-        system: `
-    You are a professional resume writer skilled in LaTeX. You MUST follow Jake Gutierrez's LaTeX resume template EXACTLY.
-    
-    STRICT RULES:
-    - Generate a COMPLETE LaTeX document that includes ALL necessary preamble commands and document structure
-    - Start with \\documentclass and end with \\end{document}
-    - Include ALL required package imports and custom commands from the template
-    - Only make minimal, strategic adjustments to highlight relevant experience
-    - Rephrase existing bullet points to incorporate job keywords, but do not remove original content
-    - DO NOT remove or significantly alter original projects and experiences
-    - DO NOT generate a CV or add new sections
-    - DO NOT remove works experience or projects mentioned in the request.
-    - name should be centered and highlighted in the resume.
-    -  the outline should match Education, Experinces, Projects, Technical Skills, Achivements(optional, only if mentioned in the request)
-    - DO NOT include explanations or comments
-    - Ensure the LaTeX code compiles correctly into one full page
-    - Keep all content ATS-friendly and structured correctly
-    - Maintain original dates and formatting consistency
-    - Preserve all original LaTeX formatting commands and structure
-    
-    The response MUST be a complete, compilable LaTeX document that includes ALL necessary components from the template.
-    `,
-        messages: [
-          {
-            role: 'user',
-            content: `
-      Resume Text:
-      ${extractedText}  
-      
-      Job Description:
-      ${jobDescription}
-      
-      TASK:
-      - Update the resume to match the job description.
-      - DO NOT generate a CV. 
-      - DO NOT modify the format; keep it STRICTLY as per Jake Gutierrez's LaTeX resume.
-      - DO NOT remove works experience or projects mentioned in the request.
-      
-      Return ONLY LaTeX. NO explanations, NO comments, NO additional sections.
-      `,
-          },
-        ],
-      };
-      
+      model: 'claude-3-opus-20240229',
+      max_tokens: 15000,
+      system: `You are a skilled resume content writer. Your task is to generate content for a LaTeX resume based on the user's original resume and a job description.
 
-    // Log the request details
-    console.log('Request URL:', 'http://localhost:5001/api/generate-resume');
+IMPORTANT: DO NOT include any LaTeX preamble, document class, or package definitions. Only provide the content that goes INSIDE the document environment.
+
+For each section, follow these rules:
+1. For PERSONAL INFO:
+   - Include name, address, email, phone, LinkedIn, and GitHub
+
+2. For EDUCATION:
+   - Format: Institution name, Location, Degree, GPA, Graduation date
+
+3. For EXPERIENCE:
+   - Format: Company name, Location, Position, Dates
+   - Each position MUST have EXACTLY 3-4 bullet points
+   - Each bullet point MUST be one line only
+   - Use action verbs at the start of each bullet
+
+4. For PROJECTS:
+   - Format: Project name, Technologies used, Dates
+   - Each project MUST have EXACTLY 3-4 bullet points
+   - Each bullet point MUST be one line only
+   - Focus on technical achievements
+
+5. For SKILLS:
+   - Organize by categories (Languages, Frameworks, Tools, etc.)
+   - Prioritize skills mentioned in the job description
+
+Return ONLY the content using these LaTeX commands:
+- \\name{Your Name}
+- \\address{Location · Phone · Email}
+- \\basicInfo{Email, Phone, LinkedIn, GitHub}
+- \\section{Section Title}
+- \\datedsubsection{Company/University}{Date}
+- \\role{Position Title}{}
+- \\resumeItem{Bullet point content}
+- \\resumeSubItem{Category}{List of skills}
+
+NO DOCUMENT CLASS, NO PACKAGES, NO \\begin{document}, NO \\end{document}. Just the content.`,
+      messages: [
+        {
+          role: 'user',
+          content: `
+Resume Text:
+${extractedText}  
+
+Job Description:
+${jobDescription}
+
+TASK:
+- Generate resume content that highlights skills and experience relevant to the job description
+- Focus on tailoring the Skills section to match job requirements
+- Each experience and project MUST have EXACTLY 3-4 bullet points
+- Each bullet point MUST be ONE LINE only
+- Use strong action verbs at the start of each bullet point
+- Keep everything concise to fit on a single page
+
+Return ONLY the LaTeX content using the commands I specified. NO preamble, NO document class, NO begin/end document tags.
+`,
+        },
+      ],
+    };
+
     console.log('Request Payload:', requestPayload);
 
     try {
+      // 1) Get improved LaTeX from Anthropic
       const response = await fetch('http://localhost:5001/api/generate-resume', {
         method: 'POST',
         headers: {
@@ -79,24 +95,29 @@ export default function ClaudeResumeGenerator({ extractedText, jobDescription })
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
-      const latexContent = data.content[0].text;
-      setClaudeOutput(latexContent);
-      console.log('LaTeX Content:', latexContent);
 
-      // Compile LaTeX to PDF via server
+      const data = await response.json();
+      const resumeContent = data.content[0].text;
+      setClaudeOutput(resumeContent);
+      console.log('Claude Response:', resumeContent);
+
+      // 2) Compile LaTeX -> PDF via your updated server route (which now calls TeXLive.net)
       const pdfResponse = await fetch('http://localhost:5001/api/compile-latex', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ latexContent }),
+        body: JSON.stringify({
+          latexContent: resumeContent,
+          useTemplate: true
+        }), 
       });
 
       if (!pdfResponse.ok) {
         throw new Error('Failed to compile LaTeX to PDF');
       }
 
+      // Convert PDF to a blob and display
       const pdfBlob = await pdfResponse.blob();
       const pdfUrl = URL.createObjectURL(pdfBlob);
       setPdfUrl(pdfUrl);
@@ -123,7 +144,7 @@ export default function ClaudeResumeGenerator({ extractedText, jobDescription })
             src={pdfUrl}
             style={{ width: '100%', height: '500px', border: 'none' }}
             title="PDF Resume"
-          ></iframe> 
+          ></iframe> 
         </div>
       )}
     </div>

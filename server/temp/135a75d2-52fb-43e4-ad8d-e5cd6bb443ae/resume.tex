@@ -1,0 +1,109 @@
+\documentclass[letterpaper,11pt]{article}
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome}
+\usepackage{multicol}
+\usepackage{geometry}
+\geometry{left=0.4in,top=0.4in,right=0.4in,bottom=0.4in}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\name}[1]{\centerline{\Huge \scshape #1}\vspace{1.25ex}}
+\newcommand{\address}[1]{\centerline{#1}\vspace{-7pt}}
+\newcommand{\basicInfo}[1]{\centerline{\small#1}\vspace{-7pt}}
+
+\begin{document}
+Here is the improved resume content in LaTeX format:
+
+\name{Eshanth Chinthareddy}
+\address{Ames, Iowa}
+\phone{612-461-6318}
+\email{chinthareddyeshanth@gmail.com}
+
+\heading{Education}
+
+\job{Bachelor of Science in Software Engineering}{Iowa State University}{Expected Graduation: Dec 2025}
+\detail{GPA: 3.28}
+
+\heading{Technical Skills}
+
+\skill{Languages}{C++, Python, C, Java, C\#, Assembly, Go, Rust}
+\skill{Embedded Systems}{Microcontrollers, Microprocessors, NVIDIA Jetson}
+\skill{Web Technologies}{REST APIs, WebSockets, MERN Stack, ASP.NET Core}
+\skill{Databases}{MySQL, MongoDB}
+\skill{Tools \& Frameworks}{Git, Docker, Kubernetes, React, Django, Flask, .NET}
+
+\heading{Work Experience}
+
+\job{Software Engineering Intern}{Thinix}{May 2024 – Present}
+\detail{Optimized RESTful APIs with ASP.NET Core, reducing response times by 40\%}
+\detail{Integrated Dynatrace APM for real-time monitoring and improved observability}
+\detail{Led .NET 6 to .NET 8 migration to boost scalability and efficiency} 
+
+\job{System Support Specialist}{Iowa State University}{May 2023 – May 2024}
+\detail{Provided technical support, troubleshooting software/hardware issues}
+\detail{Utilized SCCM and JAMF for software deployment and device management}
+\detail{Managed IT service tickets to ensure timely resolution}
+
+\job{Mathematics Grading Assistant}{Iowa State University}{Jan 2023 – May 2023} 
+\detail{Assessed quizzes and assignments, providing constructive feedback}
+\detail{Mentored students in calculus and algebra through tutoring sessions}
+\detail{Implemented effective teaching methods to foster engagement}
+
+\heading{Project Experience}
+
+\job{JobTrackPro}{}{Dec 2024 – Present}
+\detail{Developing AI-powered resume tailoring tool using NLP techniques}
+\detail{Built job tracking platform to scrape data for application insights}
+\detail{Designed user interface for managing applications and reminders}
+
+\job{ShopEase}{}{Feb 2024 – May 2024}
+\detail{Developed full-stack e-commerce platform with React and Node.js}
+\detail{Implemented RESTful APIs for product listings and order management} 
+\detail{Integrated MongoDB for scalable data storage and retrieval}
+
+\job{Multi-Service App}{}{Sept 2023 – Dec 2023}
+\detail{Developed platform for listing and requesting services like tutoring}
+\detail{Implemented user authentication, messaging, and location services}
+\detail{Managed database configurations and API development with Spring Boot}
+\end{document}

@@ -1,0 +1,114 @@
+\documentclass[letterpaper,11pt]{article}
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome}
+\usepackage{multicol}
+\usepackage{geometry}
+\geometry{left=0.4in,top=0.4in,right=0.4in,bottom=0.4in}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \textit{\small#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\name}[1]{\centerline{\Huge \scshape #1}\vspace{1.25ex}}
+\newcommand{\address}[1]{\centerline{#1}\vspace{-7pt}}
+\newcommand{\basicInfo}[1]{\centerline{\small#1}\vspace{-7pt}}
+
+\begin{document}
+Here is the LaTeX content for the tailored resume:
+
+\name{Eshanth Chinthareddy}
+\address{Ames, Iowa}
+\phone{612-461-6318}
+\email{chinthareddyeshanth@gmail.com}
+
+\makecvheader
+
+\cvsection{Education}
+\cvitem{Iowa State University}{Bachelor of Science in Software Engineering \hfill Expected Graduation: Dec 2025}
+{GPA: 3.28}
+
+\cvsection{Technical Skills}
+\cvitem{Languages}{C++, Python, C, C\#, Java, JavaScript, TypeScript, Assembly, Go, Rust}
+\cvitem{Technologies}{Embedded Systems, Microcontrollers, REST APIs, Selenium, Pandas, Git, CI/CD}
+\cvitem{Frameworks}{.NET, Django, Spring Boot, React, Redux, Express.js, Node.js}
+
+\cvsection{Work Experience}
+\cvitem{Software Engineering Intern}{Thinix \hfill May 2024 -- Present}
+{
+\begin{itemize}
+\itemsep -2pt {}
+\item Optimized ASP.NET Core and Entity Framework RESTful APIs, reducing response times by 40\%
+\item Led migration from .NET 6 to .NET 8, enhancing scalability and efficiency
+\item Implemented automated testing with MSTest and Jest, increasing test coverage
+\end{itemize}
+}
+
+\cvitem{System Support Specialist}{Iowa State University \hfill May 2023 -- May 2024}
+{
+\begin{itemize}
+\itemsep -2pt {}  
+\item Provided technical support, troubleshooting software/hardware issues and managing IT tickets
+\item Utilized SCCM and JAMF for software deployment, config management, and hardware inventory
+\end{itemize}
+}
+
+\cvsection{Project Experience}
+\cvitem{Multi-Service App}{Spring Boot, REST APIs, WebSockets, MySQL, JUnit \hfill Sept 2023 -- Dec 2023}
+{
+\begin{itemize}
+\itemsep -2pt {}
+\item Developed multi-service platform for users to list and request services like tutoring
+\item Implemented user auth, real-time messaging, and location services with Google Maps API  
+\item Managed database configs, data modeling, and API development with Spring Boot
+\end{itemize}
+}
+
+\cvitem{JobTrackPro}{Django, Selenium, Pandas, MongoDB, Python, React \hfill Dec 2024 -- Present}
+{
+\begin{itemize}  
+\itemsep -2pt {}
+\item Developing AI-powered resume tailoring tool to refine resumes based on job descriptions
+\item Built intelligent job-tracking platform that scrapes LinkedIn/Indeed for data insights
+\item Implemented export to spreadsheets for analyzing application trends
+\end{itemize}
+}
+\end{document}
