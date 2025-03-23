@@ -12,115 +12,161 @@ export default function ClaudeResumeGenerator({ extractedText, jobDescription })
     setClaudeOutput('');
     setPdfUrl('');
 
+    const systemPrompt = `You are a professional resume writer skilled in LaTeX. You must use EXACTLY this template structure for all resumes:
+
+\\documentclass[letterpaper,11pt]{article}
+
+\\usepackage{latexsym}
+\\usepackage[empty]{fullpage}
+\\usepackage{titlesec}
+\\usepackage{marvosym}
+\\usepackage[usenames,dvipsnames]{color}
+\\usepackage{verbatim}
+\\usepackage{enumitem}
+\\usepackage[hidelinks]{hyperref}
+\\usepackage{fancyhdr}
+\\usepackage[english]{babel}
+\\usepackage{tabularx}
+
+\\pagestyle{fancy}
+\\fancyhf{} 
+\\fancyfoot{}
+\\renewcommand{\\headrulewidth}{0pt}
+\\renewcommand{\\footrulewidth}{0pt}
+
+\\addtolength{\\oddsidemargin}{-0.5in}
+\\addtolength{\\evensidemargin}{-0.5in}
+\\addtolength{\\textwidth}{1in}
+\\addtolength{\\topmargin}{-.5in}
+\\addtolength{\\textheight}{1.0in}
+
+\\urlstyle{same}
+\\raggedbottom
+\\raggedright
+\\setlength{\\tabcolsep}{0in}
+
+\\titleformat{\\section}{
+  \\vspace{-4pt}\\scshape\\raggedright\\large
+}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]
+
+\\newcommand{\\resumeItem}[1]{
+  \\item\\small{
+    {#1 \\vspace{-2pt}}
+  }
+}
+
+\\newcommand{\\resumeSubheading}[4]{
+  \\vspace{-2pt}\\item
+    \\begin{tabular*}{0.97\\textwidth}[t]{l@{\\extracolsep{\\fill}}r}
+      \\textbf{#1} & #2 \\\\
+      \\textit{\\small#3} & \\textit{\\small #4} \\\\
+    \\end{tabular*}\\vspace{-7pt}
+}
+
+\\newcommand{\\resumeProjectHeading}[2]{
+    \\item
+    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}
+      \\small#1 & #2 \\\\
+    \\end{tabular*}\\vspace{-7pt}
+}
+
+\\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=0.15in, label={}]}
+\\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}
+\\newcommand{\\resumeItemListStart}{\\begin{itemize}}
+\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}
+
+Key requirements:
+1. Use EXACTLY these sections in order: Education, Experience, Projects, Technical Skills
+2. For each experience and project:
+   - Use exactly 3-4 bullet points
+   - Start each bullet point with an action verb
+   - Keep bullet points to one line
+3. Use the predefined commands:
+   - \\resumeSubheading for education and experience entries
+   - \\resumeProjectHeading for project entries
+   - \\resumeItem for bullet points
+4. Technical Skills should use the exact format shown with Languages, Frameworks, Developer Tools, Libraries
+5. Keep all content between \\begin{document} and \\end{document}
+6. Ensure content fits on one page
+
+VERY IMPORTANT: You MUST include the complete LaTeX document with \\begin{document} and \\end{document} tags. Do not omit any part of the template. Make sure your output is a complete, compilable LaTeX document.`;
+
+    const userPrompt = `Resume Text:\n${extractedText}\n\nJob Description:\n${jobDescription}\n\nTASK:\n- Generate resume content that highlights skills and experience relevant to the job description\n- Focus on tailoring the Skills section to match job requirements\n- Each experience and project MUST have EXACTLY 3-4 bullet points\n- Each bullet point MUST be ONE LINE only\n- Use strong action verbs at the start of each bullet point\n- Keep everything concise to fit on a single page\n- Include a complete, compilable LaTeX document from \\documentclass to \\end{document}\n- The resume should have a proper header with name, contact information, and links`;
+
     // Create request payload
     const requestPayload = {
-      model: 'claude-3-opus-20240229',
-      max_tokens: 15000,
-      system: `You are a skilled resume content writer. Your task is to generate content for a LaTeX resume based on the user's original resume and a job description.
-
-IMPORTANT: DO NOT include any LaTeX preamble, document class, or package definitions. Only provide the content that goes INSIDE the document environment.
-
-For each section, follow these rules:
-1. For PERSONAL INFO:
-   - Include name, address, email, phone, LinkedIn, and GitHub
-
-2. For EDUCATION:
-   - Format: Institution name, Location, Degree, GPA, Graduation date
-
-3. For EXPERIENCE:
-   - Format: Company name, Location, Position, Dates
-   - Each position MUST have EXACTLY 3-4 bullet points
-   - Each bullet point MUST be one line only
-   - Use action verbs at the start of each bullet
-
-4. For PROJECTS:
-   - Format: Project name, Technologies used, Dates
-   - Each project MUST have EXACTLY 3-4 bullet points
-   - Each bullet point MUST be one line only
-   - Focus on technical achievements
-
-5. For SKILLS:
-   - Organize by categories (Languages, Frameworks, Tools, etc.)
-   - Prioritize skills mentioned in the job description
-
-Return ONLY the content using these LaTeX commands:
-- \\name{Your Name}
-- \\address{Location · Phone · Email}
-- \\basicInfo{Email, Phone, LinkedIn, GitHub}
-- \\section{Section Title}
-- \\datedsubsection{Company/University}{Date}
-- \\role{Position Title}{}
-- \\resumeItem{Bullet point content}
-- \\resumeSubItem{Category}{List of skills}
-
-NO DOCUMENT CLASS, NO PACKAGES, NO \\begin{document}, NO \\end{document}. Just the content.`,
       messages: [
         {
-          role: 'user',
-          content: `
-Resume Text:
-${extractedText}  
-
-Job Description:
-${jobDescription}
-
-TASK:
-- Generate resume content that highlights skills and experience relevant to the job description
-- Focus on tailoring the Skills section to match job requirements
-- Each experience and project MUST have EXACTLY 3-4 bullet points
-- Each bullet point MUST be ONE LINE only
-- Use strong action verbs at the start of each bullet point
-- Keep everything concise to fit on a single page
-
-Return ONLY the LaTeX content using the commands I specified. NO preamble, NO document class, NO begin/end document tags.
-`,
+          role: 'system',
+          content: systemPrompt
         },
-      ],
+        {
+          role: 'user',
+          content: userPrompt
+        }
+      ]
     };
 
+    // Log the request details
+    console.log('Request URL:', 'http://localhost:5001/api/generate-resume');
     console.log('Request Payload:', requestPayload);
 
     try {
-      // 1) Get improved LaTeX from Anthropic
       const response = await fetch('http://localhost:5001/api/generate-resume', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
         },
-        credentials: 'include',
-        body: JSON.stringify(requestPayload),
+        body: JSON.stringify(requestPayload)
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.details || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      const resumeContent = data.content[0].text;
-      setClaudeOutput(resumeContent);
-      console.log('Claude Response:', resumeContent);
+      console.log('Server Response:', data);
+      
+      if (data.content) {
+        setClaudeOutput(data.content);
+        console.log('Generated LaTeX Content:', data.content);
 
-      // 2) Compile LaTeX -> PDF via your updated server route (which now calls TeXLive.net)
-      const pdfResponse = await fetch('http://localhost:5001/api/compile-latex', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          latexContent: resumeContent,
-          useTemplate: true
-        }), 
-      });
+        // Compile LaTeX -> PDF
+        const pdfResponse = await fetch('http://localhost:5001/api/compile-latex', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            latexContent: data.content
+          }), 
+        });
 
-      if (!pdfResponse.ok) {
-        throw new Error('Failed to compile LaTeX to PDF');
+        // First check if the response is JSON (error message) or PDF
+        const contentType = pdfResponse.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await pdfResponse.json();
+          throw new Error(`LaTeX Compilation Error: ${errorData.details}`);
+        }
+
+        if (!pdfResponse.ok) {
+          throw new Error(`PDF Compilation failed: ${pdfResponse.statusText}`);
+        }
+
+        // Ensure we got PDF
+        if (!contentType || !contentType.includes('application/pdf')) {
+          throw new Error(`Invalid response type: ${contentType}`);
+        }
+
+        const pdfBlob = await pdfResponse.blob();
+        if (pdfBlob.size === 0) {
+          throw new Error('Received empty PDF file');
+        }
+
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        setPdfUrl(pdfUrl);
       }
-
-      // Convert PDF to a blob and display
-      const pdfBlob = await pdfResponse.blob();
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      setPdfUrl(pdfUrl);
     } catch (err) {
       console.error('Error:', err);
       setError(err.message || 'Failed to generate resume');
